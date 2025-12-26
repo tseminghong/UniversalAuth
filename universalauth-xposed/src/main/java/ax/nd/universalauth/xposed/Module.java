@@ -237,14 +237,45 @@ public class Module implements IXposedHookLoadPackage {
 
     private UnlockMethod hookStatusBarBiometricUnlock(Object statusBar, Class<?> statusBarClass) throws Throwable {
         Object biometricUnlockController = getBiometricUnlockControllerFromStatusBar(statusBar, statusBarClass);
-        Method startWakeAndUnlock = asAccessible(biometricUnlockController
-                .getClass()
-                .getDeclaredMethod("startWakeAndUnlock", int.class));
+        Method startWakeAndUnlock = null;
+        try {
+            startWakeAndUnlock = asAccessible(biometricUnlockController
+                    .getClass()
+                    .getDeclaredMethod("startWakeAndUnlock", int.class));
+        } catch (NoSuchMethodException e) {
+            // Try to find a similar method as a fallback
+            for (Method m : biometricUnlockController.getClass().getDeclaredMethods()) {
+                String name = m.getName();
+                if (name.toLowerCase().contains("wake") && name.toLowerCase().contains("unlock")) {
+                    m.setAccessible(true);
+                    startWakeAndUnlock = m;
+                    break;
+                }
+            }
+        }
 
+        if (startWakeAndUnlock == null) {
+            XposedBridge.log("startWakeAndUnlock not found on " + biometricUnlockController.getClass().getName() + ", biometric unlock will be disabled.");
+            return intent -> { /* no-op if method not found */ };
+        }
+
+        final Method finalMethod = startWakeAndUnlock;
         return intent -> {
             if (intent.getBooleanExtra(EXTRA_BYPASS_KEYGUARD, true)) {
                 int unlockMode = intent.getIntExtra(EXTRA_UNLOCK_MODE, MODE_UNLOCK_FADING);
-                startWakeAndUnlock.invoke(biometricUnlockController, unlockMode);
+                try {
+                    Class<?>[] params = finalMethod.getParameterTypes();
+                    if (params.length == 0) {
+                        finalMethod.invoke(biometricUnlockController);
+                    } else if (params.length == 1 && params[0] == int.class) {
+                        finalMethod.invoke(biometricUnlockController, unlockMode);
+                    } else {
+                        // Best-effort invoke with unlockMode
+                        finalMethod.invoke(biometricUnlockController, unlockMode);
+                    }
+                } catch (Throwable t) {
+                    throw new RuntimeException(t);
+                }
             }
         };
     }

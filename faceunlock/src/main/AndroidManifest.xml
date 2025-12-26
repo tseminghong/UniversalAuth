@@ -40,32 +40,37 @@
             android:excludeFromRecents="true"
             android:launchMode="standard"
             android:screenOrientation="portrait"
-            android:theme="@style/SettingsTheme" />
+            android:theme="@style/SettingsTheme"
+            android:exported="false" />
         <activity
             android:name=".FaceFinish"
             android:excludeFromRecents="true"
             android:label="@string/facelock_setup_notification_text"
             android:launchMode="standard"
             android:screenOrientation="portrait"
-            android:theme="@style/SettingsTheme" />
+            android:theme="@style/SettingsTheme"
+            android:exported="false" />
         <activity
             android:name=".FaceTryAgain"
             android:excludeFromRecents="true"
             android:launchMode="standard"
             android:screenOrientation="portrait"
-            android:theme="@style/SettingsTheme" />
+            android:theme="@style/SettingsTheme"
+            android:exported="false" />
         <activity
             android:name=".FaceValuePropActivity"
             android:excludeFromRecents="true"
             android:launchMode="standard"
             android:screenOrientation="portrait"
-            android:theme="@style/SettingsTheme" />
+            android:theme="@style/SettingsTheme"
+            android:exported="false" />
         <activity
             android:name=".FaceUpgradeFinish"
             android:excludeFromRecents="true"
             android:launchMode="standard"
             android:screenOrientation="portrait"
-            android:theme="@style/SettingsTheme" />
+            android:theme="@style/SettingsTheme"
+            android:exported="false" />
 
         <service
             android:name=".service.FaceAuthService"

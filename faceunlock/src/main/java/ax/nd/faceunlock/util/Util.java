@@ -42,7 +42,8 @@ public class Util {
             return (Integer) Context.class.getDeclaredMethod("getUserId", new Class[0]).invoke(context, new Object[0]);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
-            return 0;
+            // Fallback to public API
+            return android.os.UserHandle.myUserId();
         }
     }
 
